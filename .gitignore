@@ -1,0 +1,96 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.versions
+pom.xml.backup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/wrapper/maven-wrapper.jar
+.mvn/jvm.config # Optional, if you manage JVM config outside of git
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+hs_err_pid*
+out/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+*.launch
+.project
+.classpath
+.settings/
+# User-specific IntelliJ files that should not be committed
+/misc.xml
+/workspace.xml
+/tasks.xml
+/usage.statistics.xml
+/shelf/
+
+# Quarkus
+# Quarkus generates these during dev mode, no need to commit
+.quarkus/
+quarkus-app/
+quarkus-run.jar
+
+# Log files
+*.log
+logs/
+tmp/
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Angular (assuming it's in a subdirectory like 'angular-frontend')
+# Adjust path if your Angular project is located elsewhere
+/angular-frontend/node_modules/
+/angular-frontend/dist/
+/angular-frontend/.angular/cache/
+/angular-frontend/.browserslistrc.json
+/angular-frontend/npm-debug.log*
+/angular-frontend/yarn-debug.log*
+/angular-frontend/yarn-error.log*
+/angular-frontend/tmp/
+/angular-frontend/out/
+
+# If IntelliJ project files are *also* generated inside the Angular folder
+# /angular-frontend/.idea/
+# /angular-frontend/*.iml
+# /angular-frontend/*.iws
+# /angular-frontend/*.ipr
+
+# Test reports for Angular
+/angular-frontend/coverage/
+/angular-frontend/e2e/
+
+# Environment variables (if you have local .env files for Angular)
+# For example, if you use .env for local Angular config:
+/angular-frontend/.env
+/angular-frontend/.env.*local
+
+# Any other sensitive files not to be committed
+# For example, if you have a local application.properties for Quarkus with sensitive data:
+# src/main/resources/application-local.properties
+# src/main/resources/application-dev.properties
+# application.properties # Be careful with this, as it might contain essential config. Only if you have a non-committed local override.
+# patch
+*.orig
+*.rej
+
+# Local environment
+.env
+
+# Plugin directory
+/.quarkus/cli/plugins/
+# TLS Certificates
+.certs/
