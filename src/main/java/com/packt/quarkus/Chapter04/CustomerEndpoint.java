@@ -34,14 +34,14 @@ public class CustomerEndpoint {
     // New method to get a single customer by ID
     @GET
     @Path("/{id}") // Defines the path parameter for the ID
-    public Response getById(@PathParam("id") Long customerId) {
-        LOG.info("Received request to get customer by ID: " + customerId);
-        Customer customer = repository.findCustomerById(customerId); // Assuming this method exists in your repository
+    public Response getById(@PathParam("id") Long id) {
+        LOG.info("Received request to get customer by ID: " + id);
+        Customer customer = repository.findCustomerById(id); // Assuming this method exists in your repository
         if (customer != null) {
-            LOG.debug("Found customer with ID: " + customerId);
+            LOG.debug("Found customer with ID: " + id);
             return Response.ok(customer).build(); // Return 200 OK with the customer object
         } else {
-            LOG.warn("Customer with ID: " + customerId + " not found.");
+            LOG.warn("Customer with ID: " + id + " not found.");
             return Response.status(Response.Status.NOT_FOUND).build(); // Return 404 Not Found
         }
     }
@@ -79,16 +79,16 @@ public class CustomerEndpoint {
     }
 
     @DELETE
-    @Path("/{id}") // Changed to accept ID as a path parameter
+    @Path("/{id}") // Changed to accept id as a path parameter
     @Transactional // Ensure this method runs within a transaction
-    public Response delete(@PathParam("id") Long customerId) { // Changed to @PathParam
-        LOG.info("Received request to delete customer with ID: " + customerId);
+    public Response delete(@PathParam("id") Long id) { // Changed to @PathParam
+        LOG.info("Received request to delete customer with ID: " + id);
         try {
-            repository.deleteCustomer(customerId);
-            LOG.info("Customer deleted successfully with ID: " + customerId);
+            repository.deleteCustomer(id);
+            LOG.info("Customer deleted successfully with ID: " + id);
             return Response.status(204).build();
         } catch (Exception e) {
-            LOG.error("Error deleting customer with ID: " + customerId, e);
+            LOG.error("Error deleting customer with ID: " + id, e);
             return Response.status(500).entity("Error deleting customer").build();
         }
     }

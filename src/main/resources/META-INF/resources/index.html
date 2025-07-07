@@ -55,7 +55,7 @@
 
           $http({
             method: 'DELETE',
-            url: SERVER_URL+'?id='+customer.id
+            url: SERVER_URL+"/"+customer.id
           }).then(_success, _error);
         };
         //In case of edit customers, populate form with customer data

@@ -1,26 +1,21 @@
 package com.packt.quarkus.Chapter04;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
+import io.quarkus.panache.common.Sort;
 
 import java.util.List;
 
 @ApplicationScoped
 public class CustomerRepository {
 
-    @Inject
-    EntityManager entityManager;
-
     public List<Customer> findAll() {
-        return entityManager.createNamedQuery("Customers.findAll", Customer.class)
-                .getResultList();
+        return Customer.listAll(Sort.by("id"));
     }
 
     public Customer findCustomerById(Long id) {
-        Customer customer = entityManager.find(Customer.class, id);
+        Customer customer = Customer.findById(id);
 
         if (customer == null) {
             throw new WebApplicationException("Customer with id of " + id + " does not exist.", 404);
@@ -37,13 +32,12 @@ public class CustomerRepository {
 
     @Transactional
     public void createCustomer(Customer customer) {
-        entityManager.persist(customer);
+        customer.persist();
     }
 
     @Transactional
     public void deleteCustomer(Long customerId) {
-        Customer c = findCustomerById(customerId);
-        entityManager.remove(c);
+        Customer customer = findCustomerById(customerId);
+        customer.delete();
     }
-
 }

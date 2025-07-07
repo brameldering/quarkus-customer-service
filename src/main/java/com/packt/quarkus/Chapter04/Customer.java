@@ -6,18 +6,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.persistence.*;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import java.util.List;
 
 @Cacheable
 @Entity
-@NamedQuery(name = "Customers.findAll",
-        query = "SELECT c FROM Customer c ORDER BY c.id",
-        hints = @QueryHint(name = "org.hibernate.cacheable", value = "true") )
 @Data // Generates getters, setters, toString, equals, hashCode
 @NoArgsConstructor // Generates a no-argument constructor
 @AllArgsConstructor // Generates a constructor with all fields
 @Builder // Generates a builder pattern
-public class Customer {
+public class Customer extends PanacheEntityBase {
     @Id
     @SequenceGenerator(
             name = "customerSequence",
@@ -32,10 +30,6 @@ public class Customer {
 
     @Column(length = 40)
     private String lastName;
-
-    public String getFullName() {
-        return firstName + " " + lastName;
-    }
 
     @OneToMany(mappedBy = "customer")
     @JsonbTransient
