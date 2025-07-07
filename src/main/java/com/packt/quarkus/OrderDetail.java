@@ -1,4 +1,4 @@
-package com.packt.quarkus.Chapter04;
+package com.packt.quarkus;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.persistence.*;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-import java.util.List;
 
 @Cacheable
 @Entity
@@ -15,30 +14,25 @@ import java.util.List;
 @NoArgsConstructor // Generates a no-argument constructor
 @AllArgsConstructor // Generates a constructor with all fields
 @Builder // Generates a builder pattern
-public class Customer extends PanacheEntityBase {
+public class OrderDetail extends PanacheEntityBase {
     @Id
     @SequenceGenerator(
-            name = "customerSequence",
-            sequenceName = "customerId_seq",
+            name = "orderSequence",
+            sequenceName = "orderId_seq",
             allocationSize = 1,
             initialValue = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customerSequence")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "orderSequence")
     private Long id;
 
     @Column(length = 40)
-    private String firstName;
+    private String item;
 
-    @Column(length = 40)
-    private String lastName;
+    @Column
+    private Long price;
 
-    @OneToMany(mappedBy = "customer")
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
     @JsonbTransient
-    public List<OrderDetail> orderDetails;
-}
+    public Customer customer;
 
-// example using lombok builder
-//Customer customer = Customer.builder()
-//        .firstName("Bram")
-//        .id(1)
-//        .lastName("Eldering")
-//        .build();
+}

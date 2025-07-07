@@ -1,4 +1,4 @@
-package com.packt.quarkus.Chapter04;
+package com.packt.quarkus;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.response.Response;

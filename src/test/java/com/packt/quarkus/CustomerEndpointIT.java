@@ -1,8 +1,8 @@
-package com.packt.quarkus.Chapter04;
+package com.packt.quarkus;
 
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 
 @QuarkusIntegrationTest
-class OrderDetailEndpointIT extends OrderDetailEndpointTest {
+class CustomerEndpointIT extends CustomerEndpointTest {
     // Execute the same tests but in packaged mode.
 }
