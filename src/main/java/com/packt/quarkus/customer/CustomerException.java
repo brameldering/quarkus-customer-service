@@ -1,4 +1,4 @@
-package com.packt.quarkus;
+package com.packt.quarkus.customer;
 
 public class CustomerException extends RuntimeException {
 

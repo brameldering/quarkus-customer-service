@@ -1,4 +1,4 @@
-package com.packt.quarkus;
+package com.packt.quarkus.customer;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

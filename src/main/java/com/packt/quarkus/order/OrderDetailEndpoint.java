@@ -1,5 +1,7 @@
-package com.packt.quarkus;
+package com.packt.quarkus.order;
 
+import com.packt.quarkus.customer.Customer;
+import com.packt.quarkus.customer.CustomerRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
