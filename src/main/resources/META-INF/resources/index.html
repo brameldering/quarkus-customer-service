@@ -50,7 +50,7 @@
             }
           }).then(_success, _error);
         };
-        //HTTP DELETE- delete customer by id
+        //HTTP DELETE - delete customer by id
         $scope.remove = function (customer) {
 
           $http({
@@ -64,8 +64,8 @@
           $scope.form.lastName = customer.lastName;
           $scope.form.id = customer.id;
         };
-          /* Private Methods */
-        //HTTP GET- get all customers collection
+        /* Private Methods */
+        //HTTP GET - get all customers
         function _refreshPageData() {
           $http({
             method: 'GET',
@@ -118,7 +118,11 @@
         <div class="divTableRow" ng-repeat="customer in customers">
             <div class="divTableCell">{{ customer.firstName }}</div>
             <div class="divTableCell">{{ customer.lastName }}</div>
-            <div class="divTableCell"><a ng-click="edit( customer )" class="myButton">Edit</a> <a ng-click="remove( customer )" class="myButton">Remove</a></div>
+            <div class="divTableCell">
+                <a ng-href="/order.html?customerId={{ customer.id }}&customerName={{ customer.name }}&customerSurname={{ customer.surname }}" class="myButton">Orders</a>
+                <a ng-click="edit( customer )" class="myButton">Edit</a>
+                <a ng-click="remove( customer )" class="myButton">Remove</a>
+            </div>
         </div>
     </div>
 </div>

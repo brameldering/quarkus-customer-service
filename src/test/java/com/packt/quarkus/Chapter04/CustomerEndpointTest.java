@@ -1,6 +1,7 @@
 package com.packt.quarkus.Chapter04;
 
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
 
 import jakarta.json.Json;
@@ -8,27 +9,39 @@ import jakarta.json.JsonObject;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 
 @QuarkusTest
 class CustomerEndpointTest {
+
     @Test
     void testCustomerEndpoint() {
-        System.out.println("Start of testCustomerEndpoint");
-
-        JsonObject obj = Json.createObjectBuilder()
+        // 1. Test POST: Create a new customer
+        JsonObject newCustomerJson = Json.createObjectBuilder()
                 .add("firstName", "John")
-                .add("lastName", "Smith").build();
+                .add("lastName", "Smith")
+                .build();
 
-        // Test POST
-        given()
+        Response postResponse = given()
                 .contentType("application/json")
-                .body(obj.toString())
+                .body(newCustomerJson.toString())
                 .when()
                 .post("/customers")
                 .then()
-                .statusCode(201);
+                .statusCode(201) // Expecting 201 Created for a successful POST
+                .extract()
+                .response();
 
-        // Test GET
+        // Extract the generated ID from the response
+        Long createdCustomerId = postResponse.jsonPath().getLong("id");
+
+        // Assert that the ID is valid (e.g., greater than 0, as sequences usually start from 1)
+        postResponse.then().body("id", greaterThan(0));
+
+        // 2. Test GET All: Verify the newly created customer is in the list
+        // This check is a bit broad, but combined with size() and containsInAnyOrder later, it's fine.
         given()
                 .when().get("/customers")
                 .then()
@@ -36,36 +49,56 @@ class CustomerEndpointTest {
                 .body(containsString("John"),
                         containsString("Smith"));
 
-        obj = Json.createObjectBuilder()
-                .add("id", "0")
+        // 3. Test PUT: Update the newly created customer
+        JsonObject updatedCustomerJson = Json.createObjectBuilder()
+                .add("id", createdCustomerId) // Use the dynamically created ID
                 .add("firstName", "Donald")
-                .add("lastName", "Duck").build();
+                .add("lastName", "Duck")
+                .build();
 
-        // Test PUT
         given()
                 .contentType("application/json")
-                .body(obj.toString())
+                .body(updatedCustomerJson.toString())
                 .when()
                 .put("/customers")
                 .then()
-                .statusCode(204);
+                .statusCode(204); // Expecting 204 No Content for a successful PUT (update)
 
-        // Test GET after UPDATE
+        // 4. Test GET Single: Verify the update by fetching the customer by its ID
+        given()
+                .when().get("/customers/" + createdCustomerId)
+                .then()
+                .statusCode(200)
+                .body("firstName", is("Donald"))
+                .body("lastName", is("Duck"));
+
+        // 5. Test GET All after Update: Verify all customers, including the updated one and those from import.sql
         given()
                 .when().get("/customers")
                 .then()
                 .statusCode(200)
-                .body(containsString("Donald"),
-                        containsString("Duck"));
+                .body("size()", is(3)) // Assuming 2 customers from import.sql + 1 created in test
+                .body("firstName", containsInAnyOrder("John", "Fred", "Donald")); // Check names from all customers
 
-        // Test DELETE
+        // 6. Test DELETE: Delete the customer created in this test
         given()
                 .contentType("application/json")
                 .when()
-                .delete("/customers?id=0")
+                .delete("/customers/" + createdCustomerId) // Use the dynamically created ID and path parameter
                 .then()
-                .statusCode(204);
+                .statusCode(204); // Expecting 204 No Content for a successful DELETE
 
-        System.out.println("End of testCustomerEndpoint");
+        // Verify the customer is no longer present after deletion
+        given()
+                .when().get("/customers/" + createdCustomerId)
+                .then()
+                .statusCode(404); // Expecting 404 Not Found after deletion
+
+        // Verify total count after deletion
+        given()
+                .when().get("/customers")
+                .then()
+                .statusCode(200)
+                .body("size()", is(2)); // Should be back to 2 customers from import.sql
     }
 }

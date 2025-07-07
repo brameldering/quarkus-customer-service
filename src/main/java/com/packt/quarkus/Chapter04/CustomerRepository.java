@@ -1,47 +1,49 @@
 package com.packt.quarkus.Chapter04;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.WebApplicationException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
 public class CustomerRepository {
 
-    List<Customer> customerList = new ArrayList<>();
-    int counter;
-
-    public int getNextCustomerId() {
-        return counter++;
-    }
+    @Inject
+    EntityManager entityManager;
 
     public List<Customer> findAll() {
-        return customerList;
+        return entityManager.createNamedQuery("Customers.findAll", Customer.class)
+                .getResultList();
     }
 
-    public Customer findCustomerById(Integer id) {
-        for (Customer c:customerList) {
-            if (c.getId().equals(id)) {
-                return c;
-            }
+    public Customer findCustomerById(Long id) {
+        Customer customer = entityManager.find(Customer.class, id);
+
+        if (customer == null) {
+            throw new WebApplicationException("Customer with id of " + id + " does not exist.", 404);
         }
-        throw new CustomerException ("Customer not found!");
+        return customer;
     }
 
+    @Transactional
     public void updateCustomer(Customer customer) {
         Customer customerToUpdate = findCustomerById(customer.getId());
         customerToUpdate.setFirstName(customer.getFirstName());
         customerToUpdate.setLastName(customer.getLastName());
     }
 
+    @Transactional
     public void createCustomer(Customer customer) {
-        customer.setId(getNextCustomerId());
-        findAll().add(customer);
+        entityManager.persist(customer);
     }
 
-    public void deleteCustomer(Integer customerId) {
-        Customer customer = findCustomerById(customerId);
-        findAll().remove(customer);
+    @Transactional
+    public void deleteCustomer(Long customerId) {
+        Customer c = findCustomerById(customerId);
+        entityManager.remove(c);
     }
 
 }

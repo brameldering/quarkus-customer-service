@@ -5,7 +5,9 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.transaction.Transactional; // Import for @Transactional
 
+import java.net.URI; // Import for URI.create
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,21 +31,41 @@ public class CustomerEndpoint {
         return customers;
     }
 
+    // New method to get a single customer by ID
+    @GET
+    @Path("/{id}") // Defines the path parameter for the ID
+    public Response getById(@PathParam("id") Long customerId) {
+        LOG.info("Received request to get customer by ID: " + customerId);
+        Customer customer = repository.findCustomerById(customerId); // Assuming this method exists in your repository
+        if (customer != null) {
+            LOG.debug("Found customer with ID: " + customerId);
+            return Response.ok(customer).build(); // Return 200 OK with the customer object
+        } else {
+            LOG.warn("Customer with ID: " + customerId + " not found.");
+            return Response.status(Response.Status.NOT_FOUND).build(); // Return 404 Not Found
+        }
+    }
+
     @POST
+    @Transactional // Ensure this method runs within a transaction
     public Response create (Customer customer) {
         LOG.info("Received request to create customer: " + customer); // Be careful logging sensitive data
         try {
             repository.createCustomer(customer);
-            LOG.info("Customer created successfully.");
-            return Response.status(201).build();
+            LOG.info("Customer created successfully. ID: " + customer.getId());
+            // Return the created customer object in the response body
+            // This is crucial for the test to extract the ID
+            return Response.created(URI.create("/customers/" + customer.getId()))
+                    .entity(customer) // Return the customer object
+                    .build();
         } catch (Exception e) {
             LOG.error("Error creating customer: " + customer, e);
-            // You might want to return a different response status code in case of error
             return Response.status(500).entity("Error creating customer").build();
         }
     }
 
     @PUT
+    @Transactional // Ensure this method runs within a transaction
     public Response update(Customer customer) {
         LOG.info("Received request to update customer: " + customer.getId());
         try {
@@ -57,7 +79,9 @@ public class CustomerEndpoint {
     }
 
     @DELETE
-    public Response delete(@QueryParam("id") Integer customerId) {
+    @Path("/{id}") // Changed to accept ID as a path parameter
+    @Transactional // Ensure this method runs within a transaction
+    public Response delete(@PathParam("id") Long customerId) { // Changed to @PathParam
         LOG.info("Received request to delete customer with ID: " + customerId);
         try {
             repository.deleteCustomer(customerId);
