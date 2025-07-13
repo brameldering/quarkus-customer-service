@@ -8,6 +8,8 @@ import jakarta.ws.rs.WebApplicationException;
 import org.eclipse.microprofile.faulttolerance.Asynchronous;
 import org.eclipse.microprofile.faulttolerance.Bulkhead;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Gauge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
@@ -21,9 +23,15 @@ public class OrderDetailRepository {
     private static final Logger LOG = LoggerFactory.getLogger(OrderDetailRepository.class);
 
     @CircuitBreaker(failOn={RuntimeException.class}, successThreshold = 5, requestVolumeThreshold = 4, failureRatio=0.75, delay = 1000)
-    public List<OrderDetail> findAll(Long customerId) {
+    public List<OrderDetail> findAllForCustomer(Long customerId) {
 //        possibleFailure();
         return OrderDetail.list("customer.id", Sort.by("item"), customerId);
+    }
+
+    @CircuitBreaker(failOn={RuntimeException.class}, successThreshold = 5, requestVolumeThreshold = 4, failureRatio=0.75, delay = 1000)
+    public List<OrderDetail> findAll() {
+//        possibleFailure();
+        return OrderDetail.listAll();
     }
 
     private void possibleFailure() {
@@ -71,4 +79,10 @@ public class OrderDetailRepository {
         OrderDetail orderDetail = findOrderById(orderId);
         orderDetail.delete();
     }
+
+    @Gauge(name = "peakOfOrders", unit = MetricUnits.NONE, description = "Highest number of orders")
+    public Number highestNumberOfOrders() {
+        return findAll().size();
+    }
+
 }

@@ -34,7 +34,7 @@ public class OrderDetailEndpoint {
     @GET
     public List<OrderDetail> getAll(@QueryParam("customerId") Long customerId) {
         LOG.info("Received request to get all orders.");
-        List<OrderDetail> orders = orderDetailRepository.findAll(customerId);
+        List<OrderDetail> orders = orderDetailRepository.findAllForCustomer(customerId);
         LOG.debug("Found " + orders.size() + " orders.");
         return orders;
     }

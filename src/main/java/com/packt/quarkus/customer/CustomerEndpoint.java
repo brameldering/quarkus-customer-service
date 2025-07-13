@@ -9,6 +9,11 @@ import jakarta.transaction.Transactional; // Import for @Transactional
 
 import java.net.URI; // Import for URI.create
 import java.util.List;
+
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Counted;
+import org.eclipse.microprofile.metrics.annotation.Gauge;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +29,8 @@ public class CustomerEndpoint {
     CustomerRepository repository;
 
     @GET
+    @Counted(description = "Customer list count", absolute = true)
+    @Timed(name = "timerCheck", description = "How much time it takes to load the Customer list", unit = MetricUnits.MILLISECONDS)
     public List<Customer> getAll() {
         LOG.info("Received request to get all customers.");
         List<Customer> customers = repository.findAll();
