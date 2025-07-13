@@ -12,8 +12,11 @@ import java.util.List;
 
 import org.eclipse.microprofile.metrics.MetricUnits;
 import org.eclipse.microprofile.metrics.annotation.Counted;
-import org.eclipse.microprofile.metrics.annotation.Gauge;
 import org.eclipse.microprofile.metrics.annotation.Timed;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +24,7 @@ import org.slf4j.LoggerFactory;
 @ApplicationScoped
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Tag(name = "Customer API", description = "Bladiebla")
 public class CustomerEndpoint {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomerEndpoint.class);
@@ -31,6 +35,8 @@ public class CustomerEndpoint {
     @GET
     @Counted(description = "Customer list count", absolute = true)
     @Timed(name = "timerCheck", description = "How much time it takes to load the Customer list", unit = MetricUnits.MILLISECONDS)
+    @Operation(operationId = "all", description = "Getting All customers")
+    @APIResponse(responseCode = "200", description = "Successful response.")
     public List<Customer> getAll() {
         LOG.info("Received request to get all customers.");
         List<Customer> customers = repository.findAll();
@@ -41,7 +47,10 @@ public class CustomerEndpoint {
     // New method to get a single customer by ID
     @GET
     @Path("/{id}") // Defines the path parameter for the ID
-    public Response getById(@PathParam("id") Long id) {
+    @Operation(operationId = "id", description = "Get a customer by id")
+    @APIResponse(responseCode = "200", description = "Successful response.")
+    @APIResponse(responseCode = "404", description = "Customer not found.")
+    public Response getById(@Parameter(description = "The id of the customer to get.", required = true) @PathParam("id") Long id) {
         LOG.info("Received request to get customer by ID: " + id);
         Customer customer = repository.findCustomerById(id); // Assuming this method exists in your repository
         if (customer != null) {
@@ -54,8 +63,10 @@ public class CustomerEndpoint {
     }
 
     @POST
+    @Operation(operationId = "Customer", description = "Create a customer")
+    @APIResponse(responseCode = "201", description = "Successfully created" )
     @Transactional // Ensure this method runs within a transaction
-    public Response create (Customer customer) {
+    public Response create (@Parameter(description = "The new customer.", required = true) Customer customer) {
         LOG.info("Received request to create customer: " + customer); // Be careful logging sensitive data
         try {
             repository.createCustomer(customer);
@@ -72,8 +83,10 @@ public class CustomerEndpoint {
     }
 
     @PUT
+    @Operation(operationId = "Customer", description = "Update a customer")
+    @APIResponse(responseCode = "200", description = "Successfully updated" )
     @Transactional // Ensure this method runs within a transaction
-    public Response update(Customer customer) {
+    public Response update(@Parameter(description = "The customer to update.", required = true) Customer customer) {
         LOG.info("Received request to update customer: " + customer.getId());
         try {
             repository.updateCustomer(customer);
@@ -87,8 +100,10 @@ public class CustomerEndpoint {
 
     @DELETE
     @Path("/{id}") // Changed to accept id as a path parameter
+    @Operation(operationId = "id", description = "Delete a customer")
+    @APIResponse(responseCode = "204", description = "Successfully deleted" )
     @Transactional // Ensure this method runs within a transaction
-    public Response delete(@PathParam("id") Long id) { // Changed to @PathParam
+    public Response delete(@Parameter(description = "The id of the customer to delete.", required = true) @PathParam("id") Long id) { // Changed to @PathParam
         LOG.info("Received request to delete customer with ID: " + id);
         try {
             repository.deleteCustomer(id);

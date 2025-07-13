@@ -9,6 +9,10 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.UriInfo;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +23,7 @@ import java.util.List;
 @ApplicationScoped
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Tag(name = "OrderDetail API", description = "Bladiebla")
 public class OrderDetailEndpoint {
 
     private static final Logger LOG = LoggerFactory.getLogger(OrderDetailEndpoint.class);
@@ -32,6 +37,8 @@ public class OrderDetailEndpoint {
     UriInfo uriInfo;
 
     @GET
+    @Operation(operationId = "all", description = "Getting All orders")
+    @APIResponse(responseCode = "200", description = "Successful response.")
     public List<OrderDetail> getAll(@QueryParam("customerId") Long customerId) {
         LOG.info("Received request to get all orders.");
         List<OrderDetail> orders = orderDetailRepository.findAllForCustomer(customerId);
@@ -41,6 +48,9 @@ public class OrderDetailEndpoint {
 
     @GET
     @Path("/{id}") // Path parameter for the order detail ID
+    @Operation(operationId = "id", description = "Get an order by id")
+    @APIResponse(responseCode = "200", description = "Successful response.")
+    @APIResponse(responseCode = "404", description = "OrderDetail not found.")
     public Response getById(@PathParam("id") Long id) {
         LOG.info("Received request to get OrderDetail with ID: " + id);
         try {
@@ -61,7 +71,9 @@ public class OrderDetailEndpoint {
 
     @POST
     @Path("/{customerId}")
-    public Response create (OrderDetail orderDetail, @PathParam("customerId") Long customerId) {
+    @Operation(operationId = "OrderDetail", description = "Create an order")
+    @APIResponse(responseCode = "201", description = "Successfully created" )
+    public Response create (@Parameter(description = "The new order detail.", required = true) OrderDetail orderDetail, @Parameter(description = "The customer id for which to create the order.", required = true) @PathParam("customerId") Long customerId) {
         LOG.info("Received request to create OrderDetail: " + orderDetail + " for customer ID: " + customerId);
         try {
             Customer customer = customerRepository.findCustomerById(customerId);
@@ -96,7 +108,9 @@ public class OrderDetailEndpoint {
     }
 
     @PUT
-    public Response update(OrderDetail order) {
+    @Operation(operationId = "OrderDetail", description = "Update an OrderDetail")
+    @APIResponse(responseCode = "200", description = "Successfully updated" )
+    public Response update(@Parameter(description = "The order detail to update.", required = true) OrderDetail order) {
         LOG.info("Received request to update OrderDetail: " + order.getId());
         try {
             orderDetailRepository.updateOrder(order);
@@ -110,7 +124,9 @@ public class OrderDetailEndpoint {
 
     @DELETE
     @Path("/{orderId}") // Renamed path parameter for clarity
-    public Response delete(@PathParam("orderId") Long orderId) {
+    @Operation(operationId = "id", description = "Delete an order detail")
+    @APIResponse(responseCode = "204", description = "Successfully deleted" )
+    public Response delete(@Parameter(description = "The id of the order detail to delete.", required = true) @PathParam("orderId") Long orderId) {
         LOG.info("Received request to delete OrderDetail with ID: " + orderId);
         try {
             orderDetailRepository.deleteOrder(orderId);
