@@ -2,6 +2,7 @@ package com.packt.quarkus.order;
 
 import com.packt.quarkus.customer.Customer;
 import com.packt.quarkus.customer.CustomerRepository;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -23,7 +24,7 @@ import java.util.List;
 @ApplicationScoped
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@Tag(name = "OrderDetail API", description = "Bladiebla")
+@Tag(name = "OrderDetail API", description = "Operations related to order details.") // Updated description
 public class OrderDetailEndpoint {
 
     private static final Logger LOG = LoggerFactory.getLogger(OrderDetailEndpoint.class);
@@ -37,7 +38,8 @@ public class OrderDetailEndpoint {
     UriInfo uriInfo;
 
     @GET
-    @Operation(operationId = "all", description = "Getting All orders")
+    @RolesAllowed({"user", "admin"})
+    @Operation(operationId = "getAllOrderDetails", description = "Getting All orders, optionally filtered by customer ID") // Changed operationId
     @APIResponse(responseCode = "200", description = "Successful response.")
     public List<OrderDetail> getAll(@QueryParam("customerId") Long customerId) {
         LOG.info("Received request to get all orders.");
@@ -47,8 +49,9 @@ public class OrderDetailEndpoint {
     }
 
     @GET
+    @RolesAllowed({"user", "admin"})
     @Path("/{id}") // Path parameter for the order detail ID
-    @Operation(operationId = "id", description = "Get an order by id")
+    @Operation(operationId = "getOrderDetailById", description = "Get an order detail by id") // Changed operationId
     @APIResponse(responseCode = "200", description = "Successful response.")
     @APIResponse(responseCode = "404", description = "OrderDetail not found.")
     public Response getById(@PathParam("id") Long id) {
@@ -70,8 +73,9 @@ public class OrderDetailEndpoint {
     }
 
     @POST
+    @RolesAllowed("admin")
     @Path("/{customerId}")
-    @Operation(operationId = "OrderDetail", description = "Create an order")
+    @Operation(operationId = "createOrderDetail", description = "Create a new order detail for a customer") // Changed operationId
     @APIResponse(responseCode = "201", description = "Successfully created" )
     public Response create (@Parameter(description = "The new order detail.", required = true) OrderDetail orderDetail, @Parameter(description = "The customer id for which to create the order.", required = true) @PathParam("customerId") Long customerId) {
         LOG.info("Received request to create OrderDetail: " + orderDetail + " for customer ID: " + customerId);
@@ -108,7 +112,8 @@ public class OrderDetailEndpoint {
     }
 
     @PUT
-    @Operation(operationId = "OrderDetail", description = "Update an OrderDetail")
+    @RolesAllowed("admin")
+    @Operation(operationId = "updateOrderDetail", description = "Update an existing OrderDetail") // Changed operationId
     @APIResponse(responseCode = "200", description = "Successfully updated" )
     public Response update(@Parameter(description = "The order detail to update.", required = true) OrderDetail order) {
         LOG.info("Received request to update OrderDetail: " + order.getId());
@@ -123,8 +128,9 @@ public class OrderDetailEndpoint {
     }
 
     @DELETE
+    @RolesAllowed("admin")
     @Path("/{orderId}") // Renamed path parameter for clarity
-    @Operation(operationId = "id", description = "Delete an order detail")
+    @Operation(operationId = "deleteOrderDetail", description = "Delete an order detail by ID") // Changed operationId
     @APIResponse(responseCode = "204", description = "Successfully deleted" )
     public Response delete(@Parameter(description = "The id of the order detail to delete.", required = true) @PathParam("orderId") Long orderId) {
         LOG.info("Received request to delete OrderDetail with ID: " + orderId);

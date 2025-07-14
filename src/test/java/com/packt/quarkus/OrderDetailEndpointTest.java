@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
 
 @QuarkusTest
@@ -20,6 +19,9 @@ class OrderDetailEndpointTest {
 
         // 1. Test there are 2 customers in the database
         given()
+                .auth()
+                .preemptive()
+                .basic("admin", "admin")
                 .when().get("/customers")
                 .then()
                 .statusCode(200)
@@ -32,6 +34,9 @@ class OrderDetailEndpointTest {
                 .build();
 
         Response postResponse = given()
+                .auth()
+                .preemptive()
+                .basic("admin", "admin")
                 .contentType("application/json")
                 .body(objOrderDetail.toString())
                 .when()
@@ -55,6 +60,9 @@ class OrderDetailEndpointTest {
                 .build();
 
         given()
+                .auth()
+                .preemptive()
+                .basic("admin", "admin")
                 .contentType("application/json")
                 .body(objOrderDetail.toString())
                 .when()
@@ -62,8 +70,35 @@ class OrderDetailEndpointTest {
                 .then()
                 .statusCode(204);
 
+        // Test with wrong password (unauthorized)
+        given()
+                .auth()
+                .preemptive()
+                .basic("admin", "bram")
+                .contentType("application/json")
+                .body(objOrderDetail.toString())
+                .when()
+                .put("/orders")
+                .then()
+                .statusCode(401);
+
+        // Test with wrong username (forbidden)
+        given()
+                .auth()
+                .preemptive()
+                .basic("bram", "bram")
+                .contentType("application/json")
+                .body(objOrderDetail.toString())
+                .when()
+                .put("/orders")
+                .then()
+                .statusCode(403);
+
         // Test GET using customerId for Updated Order
         given()
+                .auth()
+                .preemptive()
+                .basic("admin", "admin")
                 .when().get("/orders?customerId="+createdOrderDetailId)
                 .then()
                 .statusCode(200)
@@ -71,6 +106,9 @@ class OrderDetailEndpointTest {
 
         // 4. Test GET Single: Verify the update by fetching the order by its ID
         given()
+                .auth()
+                .preemptive()
+                .basic("admin", "admin")
                 .when().get("/orders/" + createdOrderDetailId)
                 .then()
                 .statusCode(200)
@@ -80,15 +118,20 @@ class OrderDetailEndpointTest {
 
         // 4. Test DELETE Order #1
         given()
+                .auth()
+                .preemptive()
+                .basic("admin", "admin")
                 .when().delete("/orders/" + createdOrderDetailId)
                 .then()
                 .statusCode(204);
 
         // Verify the Order is no longer present after deletion
         given()
+                .auth()
+                .preemptive()
+                .basic("bram", "bram")
                 .when().get("/orders/" + createdOrderDetailId)
                 .then()
                 .statusCode(404); // Expecting 404 Not Found after deletion
-
     }
 }

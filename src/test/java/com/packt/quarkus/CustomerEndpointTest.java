@@ -25,6 +25,9 @@ class CustomerEndpointTest {
                 .build();
 
         Response postResponse = given()
+                .auth()
+                .preemptive()
+                .basic("admin", "admin")
                 .contentType("application/json")
                 .body(newCustomerJson.toString())
                 .when()
@@ -43,6 +46,9 @@ class CustomerEndpointTest {
         // 2. Test GET All: Verify the newly created customer is in the list
         // This check is a bit broad, but combined with size() and containsInAnyOrder later, it's fine.
         given()
+                .auth()
+                .preemptive()
+                .basic("admin", "admin")
                 .when().get("/customers")
                 .then()
                 .statusCode(200)
@@ -57,6 +63,9 @@ class CustomerEndpointTest {
                 .build();
 
         given()
+                .auth()
+                .preemptive()
+                .basic("admin", "admin")
                 .contentType("application/json")
                 .body(updatedCustomerJson.toString())
                 .when()
@@ -66,6 +75,9 @@ class CustomerEndpointTest {
 
         // 4. Test GET Single: Verify the update by fetching the customer by its ID
         given()
+                .auth()
+                .preemptive()
+                .basic("admin", "admin")
                 .when().get("/customers/" + createdCustomerId)
                 .then()
                 .statusCode(200)
@@ -74,6 +86,9 @@ class CustomerEndpointTest {
 
         // 5. Test GET All after Update: Verify all customers, including the updated one and those from import.sql
         given()
+                .auth()
+                .preemptive()
+                .basic("admin", "admin")
                 .when().get("/customers")
                 .then()
                 .statusCode(200)
@@ -82,6 +97,9 @@ class CustomerEndpointTest {
 
         // 6. Test DELETE: Delete the customer created in this test
         given()
+                .auth()
+                .preemptive()
+                .basic("admin", "admin")
                 .contentType("application/json")
                 .when()
                 .delete("/customers/" + createdCustomerId) // Use the dynamically created ID and path parameter
@@ -90,12 +108,18 @@ class CustomerEndpointTest {
 
         // Verify the customer is no longer present after deletion
         given()
+                .auth()
+                .preemptive()
+                .basic("admin", "admin")
                 .when().get("/customers/" + createdCustomerId)
                 .then()
                 .statusCode(404); // Expecting 404 Not Found after deletion
 
         // Verify total count after deletion
         given()
+                .auth()
+                .preemptive()
+                .basic("admin", "admin")
                 .when().get("/customers")
                 .then()
                 .statusCode(200)

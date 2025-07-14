@@ -1,5 +1,6 @@
 package com.packt.quarkus.customer;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -24,7 +25,7 @@ import org.slf4j.LoggerFactory;
 @ApplicationScoped
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@Tag(name = "Customer API", description = "Bladiebla")
+@Tag(name = "Customer API", description = "Operations related to customer management.") // Updated description
 public class CustomerEndpoint {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomerEndpoint.class);
@@ -33,9 +34,10 @@ public class CustomerEndpoint {
     CustomerRepository repository;
 
     @GET
+    @RolesAllowed({"user", "admin"})
     @Counted(description = "Customer list count", absolute = true)
     @Timed(name = "timerCheck", description = "How much time it takes to load the Customer list", unit = MetricUnits.MILLISECONDS)
-    @Operation(operationId = "all", description = "Getting All customers")
+    @Operation(operationId = "getAllCustomers", description = "Getting All customers") // Changed operationId
     @APIResponse(responseCode = "200", description = "Successful response.")
     public List<Customer> getAll() {
         LOG.info("Received request to get all customers.");
@@ -46,8 +48,9 @@ public class CustomerEndpoint {
 
     // New method to get a single customer by ID
     @GET
+    @RolesAllowed({"user", "admin"})
     @Path("/{id}") // Defines the path parameter for the ID
-    @Operation(operationId = "id", description = "Get a customer by id")
+    @Operation(operationId = "getCustomerById", description = "Get a customer by id") // Changed operationId
     @APIResponse(responseCode = "200", description = "Successful response.")
     @APIResponse(responseCode = "404", description = "Customer not found.")
     public Response getById(@Parameter(description = "The id of the customer to get.", required = true) @PathParam("id") Long id) {
@@ -63,7 +66,8 @@ public class CustomerEndpoint {
     }
 
     @POST
-    @Operation(operationId = "Customer", description = "Create a customer")
+    @RolesAllowed("admin")
+    @Operation(operationId = "createCustomer", description = "Create a new customer") // Changed operationId
     @APIResponse(responseCode = "201", description = "Successfully created" )
     @Transactional // Ensure this method runs within a transaction
     public Response create (@Parameter(description = "The new customer.", required = true) Customer customer) {
@@ -83,7 +87,8 @@ public class CustomerEndpoint {
     }
 
     @PUT
-    @Operation(operationId = "Customer", description = "Update a customer")
+    @RolesAllowed("admin")
+    @Operation(operationId = "updateCustomer", description = "Update an existing customer") // Changed operationId
     @APIResponse(responseCode = "200", description = "Successfully updated" )
     @Transactional // Ensure this method runs within a transaction
     public Response update(@Parameter(description = "The customer to update.", required = true) Customer customer) {
@@ -99,8 +104,9 @@ public class CustomerEndpoint {
     }
 
     @DELETE
+    @RolesAllowed("admin")
     @Path("/{id}") // Changed to accept id as a path parameter
-    @Operation(operationId = "id", description = "Delete a customer")
+    @Operation(operationId = "deleteCustomer", description = "Delete a customer by ID") // Changed operationId
     @APIResponse(responseCode = "204", description = "Successfully deleted" )
     @Transactional // Ensure this method runs within a transaction
     public Response delete(@Parameter(description = "The id of the customer to delete.", required = true) @PathParam("id") Long id) { // Changed to @PathParam
