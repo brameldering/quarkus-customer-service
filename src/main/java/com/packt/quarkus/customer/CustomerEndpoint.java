@@ -1,5 +1,6 @@
 package com.packt.quarkus.customer;
 
+import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -9,6 +10,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.transaction.Transactional; // Import for @Transactional
 
 import java.net.URI; // Import for URI.create
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.microprofile.metrics.MetricUnits;
@@ -32,6 +34,8 @@ public class CustomerEndpoint {
 
     @Inject
     CustomerRepository repository;
+    @Inject
+    SecurityIdentity securityContext;
 
     @GET
     @RolesAllowed({"user", "admin"})
@@ -41,6 +45,11 @@ public class CustomerEndpoint {
     @APIResponse(responseCode = "200", description = "Successful response.")
     public List<Customer> getAll() {
         LOG.info("Received request to get all customers.");
+        LOG.info("Connected with User "+securityContext.getPrincipal().getName());
+        Iterator<String> roles = securityContext.getRoles().iterator();
+        while (roles.hasNext()) {
+            LOG.info("Role: "+roles.next());
+        }
         List<Customer> customers = repository.findAll();
         LOG.debug("Found " + customers.size() + " customers.");
         return customers;
