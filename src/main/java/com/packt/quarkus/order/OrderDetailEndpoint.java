@@ -3,7 +3,8 @@ package com.packt.quarkus.order;
 import com.packt.quarkus.customer.Customer;
 import com.packt.quarkus.customer.CustomerRepository;
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.enterprise.context.ApplicationScoped;
+//import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -21,7 +22,7 @@ import java.net.URI;
 import java.util.List;
 
 @Path("/orders")
-@ApplicationScoped
+@RequestScoped
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "OrderDetail API", description = "Operations related to order details.") // Updated description

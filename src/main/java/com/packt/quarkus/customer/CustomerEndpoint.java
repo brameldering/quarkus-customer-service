@@ -1,17 +1,19 @@
 package com.packt.quarkus.customer;
 
-import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.enterprise.context.ApplicationScoped;
+// import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.json.JsonString;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.transaction.Transactional; // Import for @Transactional
 
-import java.net.URI; // Import for URI.create
-import java.util.Iterator;
+import java.net.URI;
+//import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.microprofile.metrics.MetricUnits;
 import org.eclipse.microprofile.metrics.annotation.Counted;
@@ -20,11 +22,16 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+//import io.quarkus.security.identity.SecurityIdentity;
+import org.eclipse.microprofile.jwt.Claim;
+import org.eclipse.microprofile.jwt.Claims;
+import org.eclipse.microprofile.jwt.JsonWebToken;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Path("/customers")
-@ApplicationScoped
+@RequestScoped
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "Customer API", description = "Operations related to customer management.") // Updated description
@@ -34,8 +41,18 @@ public class CustomerEndpoint {
 
     @Inject
     CustomerRepository repository;
+//    @Inject
+//    SecurityIdentity securityContext;
     @Inject
-    SecurityIdentity securityContext;
+    JsonWebToken jwt;
+
+    @Inject
+    @Claim(standard = Claims.groups)
+    Optional<JsonString> groups;
+
+    @Inject
+    @Claim(standard = Claims.preferred_username)
+    Optional<JsonString> currentUsername;
 
     @GET
     @RolesAllowed({"user", "admin"})
@@ -45,11 +62,15 @@ public class CustomerEndpoint {
     @APIResponse(responseCode = "200", description = "Successful response.")
     public List<Customer> getAll() {
         LOG.info("Received request to get all customers.");
-        LOG.info("Connected with User "+securityContext.getPrincipal().getName());
-        Iterator<String> roles = securityContext.getRoles().iterator();
-        while (roles.hasNext()) {
-            LOG.info("Role: "+roles.next());
-        }
+//        LOG.info("Connected with User "+securityContext.getPrincipal().getName());
+//        Iterator<String> roles = securityContext.getRoles().iterator();
+//        while (roles.hasNext()) {
+//            LOG.info("Role: "+roles.next());
+//        }
+        // Log JWT info
+        LOG.info("Username: "+currentUsername);
+        LOG.info("Group claim: "+groups);
+
         List<Customer> customers = repository.findAll();
         LOG.debug("Found " + customers.size() + " customers.");
         return customers;
