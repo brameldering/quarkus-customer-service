@@ -1,6 +1,7 @@
 package com.packt.quarkus;
 
 import com.packt.quarkus.customer.CustomerEndpoint;
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 import io.restassured.RestAssured;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.io.StringReader;
 
 @QuarkusTest
+@QuarkusTestResource(KeycloakTestResource.class)
 class OrderDetailEndpointTest {
 
     @ConfigProperty(name = "keycloak.url")
