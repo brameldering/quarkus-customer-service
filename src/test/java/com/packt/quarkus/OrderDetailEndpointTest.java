@@ -1,15 +1,13 @@
 package com.packt.quarkus;
 
-import com.packt.quarkus.customer.CustomerEndpoint;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
-import jakarta.json.JsonReader;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -17,7 +15,6 @@ import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.greaterThan;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,50 +24,21 @@ import java.io.StringReader;
 @QuarkusTestResource(KeycloakTestResource.class)
 class OrderDetailEndpointTest {
 
-    @ConfigProperty(name = "keycloak.url")
-    String keycloakURL;
-
-    @ConfigProperty(name = "quarkus.oidc.credentials.secret")
-    String keyCloakClientSecret;
-
     private static final Logger LOG = LoggerFactory.getLogger(OrderDetailEndpointTest.class);
+
+    @Inject
+    GetTokenFromKeyCloak getTokenFromKeyCloak;
 
     @Test
     void testOrderDetailEndpoint() {
 
-        RestAssured.baseURI = keycloakURL;
-
         // Get Test user token
         LOG.info("Get Test user token.");
-        Response response = given().urlEncodingEnabled(true)
-                .auth().preemptive().basic("quarkus-client", keyCloakClientSecret)
-                .param("grant_type", "password")
-                .param("client_id", "quarkus-client")
-                .param("username", "test")
-                .param("password", "test")
-                .header("Accept", ContentType.JSON.getAcceptHeader())
-                .post("/realms/quarkus-realm/protocol/openid-connect/token")
-                .then().statusCode(200).extract()
-                .response();
-        JsonReader jsonReader = Json.createReader(new StringReader(response.getBody().asString()));
-        JsonObject object = jsonReader.readObject();
-        String userToken = object.getString("access_token");
+        String userToken = getTokenFromKeyCloak.getToken("test", "test");
 
         // Get Admin user token
         LOG.info("Get Admin user token.");
-        response = given().urlEncodingEnabled(true)
-                .auth().preemptive().basic("quarkus-client", keyCloakClientSecret)
-                .param("grant_type", "password")
-                .param("client_id", "quarkus-client")
-                .param("username", "admin")
-                .param("password", "test")
-                .header("Accept", ContentType.JSON.getAcceptHeader())
-                .post("/realms/quarkus-realm/protocol/openid-connect/token")
-                .then().statusCode(200).extract()
-                .response();
-        jsonReader = Json.createReader(new StringReader(response.getBody().asString()));
-        object = jsonReader.readObject();
-        String adminToken = object.getString("access_token");
+        String adminToken = getTokenFromKeyCloak.getToken("admin", "test");
 
         RestAssured.baseURI = "http://localhost:8081";
         // 1. Test there are 2 customers in the database
