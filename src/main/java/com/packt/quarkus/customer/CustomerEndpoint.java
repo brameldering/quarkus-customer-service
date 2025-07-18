@@ -1,7 +1,6 @@
 package com.packt.quarkus.customer;
 
 import jakarta.annotation.security.RolesAllowed;
-// import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.json.JsonString;
@@ -11,7 +10,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.transaction.Transactional; // Import for @Transactional
 
 import java.net.URI;
-//import java.util.Iterator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +21,7 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-//import io.quarkus.security.identity.SecurityIdentity;
+import io.quarkus.security.identity.SecurityIdentity;
 import org.eclipse.microprofile.jwt.Claim;
 import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
@@ -41,8 +40,9 @@ public class CustomerEndpoint {
 
     @Inject
     CustomerRepository repository;
-//    @Inject
-//    SecurityIdentity securityContext;
+    @Inject
+    SecurityIdentity securityContext;
+
     @Inject
     JsonWebToken jwt;
 
@@ -62,11 +62,12 @@ public class CustomerEndpoint {
     @APIResponse(responseCode = "200", description = "Successful response.")
     public List<Customer> getAll() {
         LOG.info("Received request to get all customers.");
-//        LOG.info("Connected with User "+securityContext.getPrincipal().getName());
-//        Iterator<String> roles = securityContext.getRoles().iterator();
-//        while (roles.hasNext()) {
-//            LOG.info("Role: "+roles.next());
-//        }
+        // Log currently logged in user information using securityContext from Quarkus
+        LOG.info("Connected with User "+securityContext.getPrincipal().getName());
+        Iterator<String> roles = securityContext.getRoles().iterator();
+        while (roles.hasNext()) {
+            LOG.info("Role: "+roles.next());
+        }
         // Log JWT info
         LOG.info("Username: "+currentUsername);
         LOG.info("Group claim: "+groups);

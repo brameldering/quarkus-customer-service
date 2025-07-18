@@ -31,8 +31,8 @@ public class GetTokenFromKeyCloak {
 
      public String getToken(String username, String password) {
 
-//         LOG.info("=====>>> keyCloakURL: "+ keyCloakURL);
          LOG.info("=====>>> fullKeyCloakURL: "+ fullKeyCloakURL);
+         LOG.info("=====>>> clientId: "+ clientId);
          LOG.info("=====>>> keyCloakClientSecret: "+ keyCloakClientSecret);
 
          RestAssured.baseURI = fullKeyCloakURL;
