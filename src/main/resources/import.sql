@@ -1,4 +1,4 @@
-CREATE TABLE quarkus_user (
+CREATE TABLE IF NOT EXISTS quarkus_user (
       id INT,
       username VARCHAR(255),
       password VARCHAR(255),

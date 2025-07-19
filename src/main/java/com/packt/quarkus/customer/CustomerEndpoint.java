@@ -69,8 +69,12 @@ public class CustomerEndpoint {
             LOG.info("Role: "+roles.next());
         }
         // Log JWT info
+        LOG.info("========== JWT info ========");
         LOG.info("Username: "+currentUsername);
         LOG.info("Group claim: "+groups);
+        LOG.info("JWT To String: "+jwt.toString());
+        LOG.info("JWT Raw Token: "+jwt.getRawToken());
+        LOG.info("============================");
 
         List<Customer> customers = repository.findAll();
         LOG.debug("Found " + customers.size() + " customers.");

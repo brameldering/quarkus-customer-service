@@ -5,7 +5,6 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.json.Json;
-import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
@@ -52,7 +51,7 @@ public class GetTokenFromKeyCloak {
          JsonReader jsonReader = Json.createReader(new StringReader(response.getBody().asString()));
          String accessToken = jsonReader.readObject().getString("access_token");
 
-         LOG.info("=====>>> accessToken: "+ accessToken);
+//         LOG.info("=====>>> accessToken: "+ accessToken);
 
          return accessToken;
      }

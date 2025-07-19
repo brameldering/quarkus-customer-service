@@ -6,96 +6,112 @@
 
     <link rel="stylesheet" type="text/css" href="stylesheet.css" media="screen" />
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
-    <script type="text/javascript">
-      var app = angular.module("customerManagement", []);
-      angular.module('customerManagement').constant('SERVER_URL','/customers');
 
-      //Controller Part
-      app.controller("customerManagementController",  function ($scope, $http, SERVER_URL) {
-        //Initialize page with default data which is blank in this example
-        $scope.customers = [];
-        $scope.form = {
-          id: -1,
-          firstName: "",
-          lastName: ""
-        };
-        //Now load the data from server
-        _refreshPageData();
-        //HTTP POST/PUT methods for add/edit customers
-        $scope.update = function () {
-          var method = "";
-          var url = "";
-          var data = {};
-          if ($scope.form.id === -1) {
-            //Id is absent so add customers - POST operation
-            method = "POST";
-            url = SERVER_URL;
-            data.firstName = $scope.form.firstName;
-            data.lastName = $scope.form.lastName;
-          } else {
-            //If Id is present, it's edit operation - PUT operation
-            method = "PUT";
-            url = SERVER_URL;
+    <script type="module">
+        import Keycloak from './keycloak.js';
 
-            data.id = $scope.form.id;
-            data.firstName = $scope.form.firstName;
-            data.lastName = $scope.form.lastName;
-          }
-          $http({
-            method: method,
-            url: url,
-            data: angular.toJson(data),
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          }).then(_success, _error);
-        };
-        //HTTP DELETE - delete customer by id
-        $scope.remove = function (customer) {
+        // Make Keycloak globally accessible
+        window.keycloak = new Keycloak({
+            url: 'http://localhost:8180',
+            realm: 'quarkus-realm',
+            clientId: 'angular-client'
+        });
 
-          $http({
-            method: 'DELETE',
-            url: SERVER_URL+"/"+customer.id
-          }).then(_success, _error);
-        };
-        //In case of edit customers, populate form with customer data
-        $scope.edit = function (customer) {
-          $scope.form.firstName = customer.firstName;
-          $scope.form.lastName = customer.lastName;
-          $scope.form.id = customer.id;
-        };
-        /* Private Methods */
-        //HTTP GET - get all customers
-        function _refreshPageData() {
-          $http({
-            method: 'GET',
-            url: SERVER_URL
-          }).then(function successCallback(response) {
-            $scope.customers = response.data;
-          }, function errorCallback(response) {
-            console.log(response.statusText);
-          });
-        }
-        function _success(response) {
-          _refreshPageData();
-          _clearForm()
-        }
-        function _error(response) {
-          alert(response.data.message || response.statusText);
-        }
-        //Clear the form
-        function _clearForm() {
-          $scope.form.firstName = "";
-          $scope.form.lastName = "";
-          $scope.form.id = -1;
-        }
-      });
+        window.keycloak.init({ onLoad: 'login-required' }).then(authenticated => {
+            console.log("Authenticated:", authenticated);
+
+            // Create AngularJS app
+            const app = angular.module("customerManagement", []);
+
+            // Set Authorization header with bearer token
+            app.config(function($httpProvider) {
+                $httpProvider.defaults.headers.common['Authorization'] = 'Bearer ' + window.keycloak.token;
+            });
+
+            app.constant('SERVER_URL', '/customers');
+
+            app.controller("customerManagementController", function ($scope, $http, SERVER_URL) {
+                $scope.customers = [];
+                $scope.form = { id: -1, firstName: "", lastName: "" };
+
+                // Load initial data
+                _refreshPageData();
+
+                $scope.update = function () {
+                    const data = {
+                        firstName: $scope.form.firstName,
+                        lastName: $scope.form.lastName
+                    };
+                    if ($scope.form.id !== -1) {
+                        data.id = $scope.form.id;
+                    }
+
+                    const method = $scope.form.id === -1 ? "POST" : "PUT";
+                    $http({
+                        method: method,
+                        url: SERVER_URL,
+                        data: angular.toJson(data),
+                        headers: { 'Content-Type': 'application/json' }
+                    }).then(_success, _error);
+                };
+
+                $scope.remove = function (customer) {
+                    $http({
+                        method: 'DELETE',
+                        url: SERVER_URL + "/" + customer.id
+                    }).then(_success, _error);
+                };
+
+                $scope.edit = function (customer) {
+                    $scope.form.firstName = customer.firstName;
+                    $scope.form.lastName = customer.lastName;
+                    $scope.form.id = customer.id;
+                };
+
+                function _refreshPageData() {
+                    $http.get(SERVER_URL).then(
+                        response => $scope.customers = response.data,
+                        error => console.log(error.statusText)
+                    );
+                }
+
+                function _success() {
+                    _refreshPageData();
+                    _clearForm();
+                }
+
+                function _error(response) {
+                    alert(response.data.message || response.statusText);
+                }
+
+                function _clearForm() {
+                    $scope.form = { id: -1, firstName: "", lastName: "" };
+                }
+            });
+
+            // Bootstrap Angular manually
+            angular.element(document).ready(() => {
+                angular.bootstrap(document.body, ["customerManagement"]);
+            });
+
+            // Token refresh every 30 seconds
+            setInterval(() => {
+                window.keycloak.updateToken(60).then(refreshed => {
+                    if (refreshed) console.log('Token refreshed');
+                }).catch(() => console.error('Failed to refresh token'));
+            }, 30000);
+        }).catch(err => {
+            console.error('Keycloak init failed:', err);
+            window.location.reload();
+        });
     </script>
 </head>
-<body ng-app="customerManagement" ng-controller="customerManagementController">
-
-<div class="divTable blueTable">
+<body>
+<div class="divTable blueTable" ng-controller="customerManagementController">
     <h1>Quarkus CRUD Example</h1>
+    <button onclick="window.keycloak.login()">Login</button>
+    <button onclick="window.keycloak.logout()">Logout</button>
+
     <h2>Enter Customer:</h2>
     <form ng-submit="update()">
         <div class="divTableRow">
@@ -106,22 +122,22 @@
             <div class="divTableCell">Last Name:</div>
             <div class="divTableCell"><input type="text" placeholder="Last Name" ng-model="form.lastName" size="60"/></div>
         </div>
-
         <input type="submit" value="Save"/>
     </form>
+
     <div class="divTable blueTable">
         <div class="divTableHeading">
-            <div  class="divTableHead">Customer First Name</div>
-            <div  class="divTableHead">Customer Last Name</div>
-            <div  class="divTableHead">Action</div>
+            <div class="divTableHead">Customer First Name</div>
+            <div class="divTableHead">Customer Last Name</div>
+            <div class="divTableHead">Action</div>
         </div>
         <div class="divTableRow" ng-repeat="customer in customers">
             <div class="divTableCell">{{ customer.firstName }}</div>
             <div class="divTableCell">{{ customer.lastName }}</div>
             <div class="divTableCell">
-                <a ng-href="/order.html?customerId={{ customer.id }}&customerName={{ customer.name }}&customerSurname={{ customer.surname }}" class="myButton">Orders</a>
-                <a ng-click="edit( customer )" class="myButton">Edit</a>
-                <a ng-click="remove( customer )" class="myButton">Remove</a>
+                <a ng-href="/order.html?customerId={{ customer.id }}&customerName={{ customer.firstName }}&customerSurname={{ customer.lastName }}" class="myButton">Orders</a>
+                <a ng-click="edit(customer)" class="myButton">Edit</a>
+                <a ng-click="remove(customer)" class="myButton">Remove</a>
             </div>
         </div>
     </div>
