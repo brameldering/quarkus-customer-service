@@ -136,6 +136,7 @@ stop_and_remove_container "${KEYCLOAK_CONTAINER_NAME}" # Ensure a clean start
 
 echo "Attempting to start Keycloak container: ${KEYCLOAK_CONTAINER_NAME}"
 docker run \
+  -d \
   --rm \
   --name "${KEYCLOAK_CONTAINER_NAME}" \
   -p "${KEYCLOAK_PORT}:8080" \
@@ -158,3 +159,14 @@ echo "--- All containers started. ---"
 echo "PostgreSQL should be accessible on port ${POSTGRES_PORT}."
 echo "Keycloak should be accessible on http://localhost:${KEYCLOAK_PORT}."
 echo "Keycloak Admin UI: http://localhost:${KEYCLOAK_PORT}/admin"
+
+# Add a delay to allow Keycloak to fully initialize before Quarkus tries to connect
+echo "Waiting for Keycloak to fully initialize (approx. 15 seconds)..."
+sleep 15 # Increased sleep time for Keycloak initialization
+
+echo ""
+echo "--- Starting Quarkus Application in Dev Mode ---"
+echo "Note: This will run 'mvn quarkus:dev' in the current terminal."
+echo "To stop Quarkus and the script, press Ctrl+C."
+echo "If you want to run this in a new terminal, you can open a new terminal and run 'mvn quarkus:dev' manually."
+mvn quarkus:dev
