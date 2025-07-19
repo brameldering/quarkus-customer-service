@@ -8,7 +8,7 @@
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
 
   <script type="module">
-    import Keycloak from './keycloak.js';
+    import Keycloak from './js/keycloak.js';
 
     // Make Keycloak globally accessible
     window.keycloak = new Keycloak({
@@ -141,10 +141,10 @@
   </script>
 </head>
 <body>
+
+<h1>Orders for Customer: <span id="info"></span></h1>
 <button onclick="window.keycloak.login()">Login</button>
 <button onclick="window.keycloak.logout()">Logout</button>
-<h1>Orders for Customer: <span id="info"></span></h1>
-
 <div class="divTable blueTable" ng-controller="orderManagementController">
   <h2>Enter order:</h2>
   <form ng-submit="update()">

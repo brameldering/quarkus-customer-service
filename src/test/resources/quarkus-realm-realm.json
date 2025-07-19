@@ -75,8 +75,8 @@
       "implicitFlowEnabled": false,
       "serviceAccountsEnabled": false,
       "authorizationServicesEnabled": false,
-      "redirectUris": ["http://localhost:8080/*"],
-      "webOrigins": ["http://localhost:8080"],
+      "redirectUris": ["http://localhost:8080/*", "https://localhost:8443/*"],
+      "webOrigins": ["http://localhost:8080", "https://localhost:8443"],
       "defaultRoles": ["user"]
     }
   ]
