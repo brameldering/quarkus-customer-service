@@ -63,7 +63,7 @@ public class CustomerEndpoint {
     public List<Customer> getAll() {
         LOG.info("Received request to get all customers.");
         // Log currently logged in user information using securityContext from Quarkus
-        LOG.info("Connected with User "+securityContext.getPrincipal().getName());
+        LOG.info("Connected with User: "+securityContext.getPrincipal().getName());
         Iterator<String> roles = securityContext.getRoles().iterator();
         while (roles.hasNext()) {
             LOG.info("Role: "+roles.next());

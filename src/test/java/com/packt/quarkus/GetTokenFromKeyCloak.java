@@ -50,7 +50,10 @@ public class GetTokenFromKeyCloak {
                  .then().statusCode(200).extract()
                  .response();
          JsonReader jsonReader = Json.createReader(new StringReader(response.getBody().asString()));
-         JsonObject object = jsonReader.readObject();
-         return object.getString("access_token");
+         String accessToken = jsonReader.readObject().getString("access_token");
+
+         LOG.info("=====>>> accessToken: "+ accessToken);
+
+         return accessToken;
      }
 }
