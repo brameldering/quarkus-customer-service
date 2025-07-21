@@ -4,6 +4,7 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -17,18 +18,26 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
+import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 @QuarkusTest
 @QuarkusTestResource(KeycloakTestResource.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CustomerEndpointTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomerEndpointTest.class);
 
     @Inject
     GetTokenFromKeyCloak getTokenFromKeyCloak;
+
+    @BeforeAll
+    void setup() {
+        RestAssured.useRelaxedHTTPSValidation();
+        RestAssured.baseURI = "https://localhost:8444";
+    }
 
     @Test
     void testCustomerEndpoint() {
@@ -47,7 +56,9 @@ class CustomerEndpointTest {
                 .add("lastName", "Smith")
                 .build();
 
-        RestAssured.baseURI = "http://localhost:8081";
+        // following no longer needed because of @BeforeAll
+//        RestAssured.baseURI = "https://localhost:8444"; // instead of http://localhost:8081
+
         LOG.info("Test create customer.");
         Response postResponse = given()
                 .auth()

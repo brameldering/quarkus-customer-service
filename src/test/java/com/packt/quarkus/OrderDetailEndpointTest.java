@@ -3,6 +3,7 @@ package com.packt.quarkus;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -15,6 +16,7 @@ import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.greaterThan;
 
+import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,12 +24,19 @@ import java.io.StringReader;
 
 @QuarkusTest
 @QuarkusTestResource(KeycloakTestResource.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OrderDetailEndpointTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(OrderDetailEndpointTest.class);
 
     @Inject
     GetTokenFromKeyCloak getTokenFromKeyCloak;
+
+    @BeforeAll
+    void setup() {
+        RestAssured.useRelaxedHTTPSValidation();
+        RestAssured.baseURI = "https://localhost:8444";
+    }
 
     @Test
     void testOrderDetailEndpoint() {
@@ -40,7 +49,8 @@ class OrderDetailEndpointTest {
         LOG.info("Get Admin user token.");
         String adminToken = getTokenFromKeyCloak.getToken("admin", "test");
 
-        RestAssured.baseURI = "http://localhost:8081";
+//        RestAssured.baseURI = "https://localhost:8444"; // instead of http://localhost:8081
+
         // 1. Test there are 2 customers in the database
         LOG.info("Test there are 2 customers in the database.");
         given()

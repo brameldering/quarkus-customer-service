@@ -16,7 +16,8 @@ public class KeycloakTestResource implements QuarkusTestResourceLifecycleManager
     @Override
     public Map<String, String> start() {
         keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:24.0.1")
-                .withRealmImportFile("quarkus-realm-realm.json");
+                .withRealmImportFile("quarkus-realm-realm.json")
+                .useTls();;
 
         keycloak.start();
 

@@ -161,8 +161,8 @@ echo "Keycloak should be accessible on http://localhost:${KEYCLOAK_PORT}."
 echo "Keycloak Admin UI: http://localhost:${KEYCLOAK_PORT}/admin"
 
 # Add a delay to allow Keycloak to fully initialize before Quarkus tries to connect
-echo "Waiting for Keycloak to fully initialize (approx. 15 seconds)..."
-sleep 15 # Increased sleep time for Keycloak initialization
+echo "Waiting for Keycloak to fully initialize (approx. 10 seconds)..."
+sleep 10 # 10 second sleep time for Keycloak initialization
 
 echo ""
 echo "--- Starting Quarkus Application in Dev Mode ---"

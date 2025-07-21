@@ -34,20 +34,21 @@ public class GetTokenFromKeyCloak {
          LOG.info("=====>>> clientId: "+ clientId);
          LOG.info("=====>>> keyCloakClientSecret: "+ keyCloakClientSecret);
 
-         RestAssured.baseURI = fullKeyCloakURL;
-
-         // Get Test user token
-         Response response = given().urlEncodingEnabled(true)
-                 .auth().preemptive().basic(clientId, keyCloakClientSecret)
-                 .param("grant_type", "password")
-                 .param("client_id", clientId)
-                 .param("username", username)
-                 .param("password", password)
-                 .header("Accept", ContentType.JSON.getAcceptHeader())
-//                 .post("/realms/quarkus-realm/protocol/openid-connect/token")
-                 .post("/protocol/openid-connect/token")
-                 .then().statusCode(200).extract()
-                 .response();
+         // Get Test user token from fullKeyCloakURL (and don't set the RestAssured.baseURI)
+         Response response = given()
+                     .baseUri(fullKeyCloakURL)
+                     .auth().preemptive().basic(clientId, keyCloakClientSecret)
+                     .urlEncodingEnabled(true)
+                     .param("grant_type", "password")
+                     .param("client_id", clientId)
+                     .param("username", username)
+                     .param("password", password)
+                     .header("Accept", ContentType.JSON.getAcceptHeader())
+                 .when()
+                    .post("/protocol/openid-connect/token")
+                 .then()
+                    .statusCode(200)
+                    .extract().response();
          JsonReader jsonReader = Json.createReader(new StringReader(response.getBody().asString()));
          String accessToken = jsonReader.readObject().getString("access_token");
 
