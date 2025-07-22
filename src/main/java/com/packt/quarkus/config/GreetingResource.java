@@ -1,9 +1,8 @@
 package com.packt.quarkus.config;
 
-import org.eclipse.microprofile.config.Config;
+import com.packt.quarkus.config.customvalue.CustomConfigValue;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -27,8 +26,6 @@ public class GreetingResource {
 
     @ConfigProperty(name = "pets")
     String[] petsArray;
-    @Inject
-    Config config;
 
     @ConfigProperty(name = "customconfig")
     CustomConfigValue value;

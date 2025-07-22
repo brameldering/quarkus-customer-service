@@ -4,9 +4,6 @@ quarkus.datasource.jdbc.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
 quarkus.datasource.username=sa
 quarkus.datasource.password=sa
 
-# Override Hibernate generation
-quarkus.hibernate-orm.database.generation=drop-and-create
-
 # Override DB health check
 db.host=localhost
 db.port=0

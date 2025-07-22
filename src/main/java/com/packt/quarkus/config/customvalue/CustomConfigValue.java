@@ -1,4 +1,4 @@
-package com.packt.quarkus.config;
+package com.packt.quarkus.config.customvalue;
 
 import java.util.StringTokenizer;
 
