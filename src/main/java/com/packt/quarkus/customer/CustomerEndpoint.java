@@ -64,16 +64,14 @@ public class CustomerEndpoint {
         LOG.info("Received request to get all customers.");
         // Log currently logged in user information using securityContext from Quarkus
         LOG.info("Connected with User: "+securityContext.getPrincipal().getName());
-        Iterator<String> roles = securityContext.getRoles().iterator();
-        while (roles.hasNext()) {
-            LOG.info("Role: "+roles.next());
-        }
+//        Iterator<String> roles = securityContext.getRoles().iterator();
+//        while (roles.hasNext()) {
+//            LOG.info("Role: "+roles.next());
+//        }
         // Log JWT info
         LOG.info("========== JWT info ========");
         LOG.info("Username: "+currentUsername);
-        LOG.info("Group claim: "+groups);
         LOG.info("JWT To String: "+jwt.toString());
-        LOG.info("JWT Raw Token: "+jwt.getRawToken());
         LOG.info("============================");
 
         List<Customer> customers = repository.findAll();
