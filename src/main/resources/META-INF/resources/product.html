@@ -68,11 +68,34 @@
                     $scope.form.id = product.id;
                 };
 
+                $scope.writefile = function () {
+                    $http({
+                        method: 'GET',
+                        url: SERVER_URL+'/writefile'
+                    }).then(_successStage, _error);
+                };
+
+                $scope.readfile = function () {
+                    $http({
+                        method: 'GET',
+                        url: SERVER_URL+'/readfile'
+                    }).then(_successStage, _error);
+                };
+
                 function _refreshPageData() {
-                    $http.get(SERVER_URL).then(
-                        response => $scope.products = response.data,
-                        error => console.log(error.statusText)
-                    );
+                    $http({
+                        method: 'GET',
+                        url: SERVER_URL
+                    }).then(function successCallback(response) {
+                        $scope.products = response.data;
+                    }, function errorCallback(response) {
+                        console.log(response.statusText);
+                    });
+                }
+                function _successStage(response) {
+                    console.log(response);
+                    _clearForm()
+                    $scope.jsonfile = JSON.stringify(response.data);
                 }
 
                 function _success() {
@@ -140,8 +163,17 @@
             </div>
         </div>
     </div>
-    <br/>
+    <div class="divTable blueTable">
+        <div class="divTableCell">
+            <a ng-click="writefile()" class="myButton">Write File</a> &nbsp;
+            <a ng-click="readfile()" class="myButton">Read File</a>&nbsp;&nbsp;&nbsp;
+        </div>
+        <br/>
+    </div>
+    <div id="container">
+        <span ng-bind="jsonfile"></span>
+    </div>
     <input type="button" class="myButton" onclick="location.href='/'" value="Home" />
-</div>
+ </div>
 </body>
 </html>

@@ -139,9 +139,6 @@ public class OrderDetailEndpoint {
             orderDetailRepository.deleteOrder(orderId);
             LOG.info("OrderDetail deleted successfully with ID: {}", orderId);
             return Response.status(204).build();
-        } catch (WebApplicationException e) {
-            LOG.warn("Error deleting OrderDetail: {}", e.getMessage());
-            return Response.status(e.getResponse().getStatus()).entity(e.getMessage()).build();
         } catch (Exception e) {
             LOG.error("Error deleting OrderDetail with ID: {}", orderId, e);
             return Response.status(500).entity("Error deleting OrderDetail").build();

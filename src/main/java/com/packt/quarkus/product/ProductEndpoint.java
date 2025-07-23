@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.CompletionStage;
 
 @Path("/products")
 @RequestScoped
@@ -88,9 +89,6 @@ public class ProductEndpoint {
             return Response.created(location)
                     .entity(createdProduct)
                     .build();
-        } catch (WebApplicationException e) {
-            LOG.error("Error creating Product: Customer not found.", e);
-            return Response.status(e.getResponse().getStatus()).entity(e.getMessage()).build();
         } catch (Exception e) {
             LOG.error("Error creating Product: {}", product, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -126,12 +124,28 @@ public class ProductEndpoint {
             productRepository.deleteProduct(productId);
             LOG.info("Product deleted successfully with ID: {}", productId);
             return Response.status(204).build();
-        } catch (WebApplicationException e) {
-            LOG.warn("Error deleting Product: {}", e.getMessage());
-            return Response.status(e.getResponse().getStatus()).entity(e.getMessage()).build();
         } catch (Exception e) {
             LOG.error("Error deleting Product with ID: {}", productId, e);
             return Response.status(500).entity("Error deleting Product").build();
         }
+    }
+
+    @GET
+    @Path("writefile")
+    @Produces("text/plain")
+    public CompletionStage<String> writeFile() {
+        LOG.info("Received request to write file.");
+        return productRepository.writeFile();
+    }
+
+    @GET
+    @Path("readfile")
+    public CompletionStage<String> readFile() {
+        LOG.info("Received request to read file.");
+        return productRepository.readFile()
+                .thenApply(result -> {
+                    LOG.info("File read successfully: " + result.length());
+                    return result;
+                });
     }
 }
