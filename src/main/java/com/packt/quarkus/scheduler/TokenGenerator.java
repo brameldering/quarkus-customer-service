@@ -19,9 +19,9 @@ public class TokenGenerator {
         return token;
     }
 
-    @Scheduled(every="30s")
-    void generateToken() {
-        token= UUID.randomUUID().toString();
-        LOG.info("Generated token: {}", token);
-    }
+//    @Scheduled(every="30s")
+//    void generateToken() {
+//        token= UUID.randomUUID().toString();
+//        LOG.info("Generated token: {}", token);
+//    }
 }

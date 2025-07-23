@@ -21,26 +21,26 @@
             console.log("Authenticated:", authenticated);
 
             // Create AngularJS app
-            const app = angular.module("customerManagement", []);
+            const app = angular.module("productManagement", []);
 
             // Set Authorization header with bearer token
             app.config(function($httpProvider) {
                 $httpProvider.defaults.headers.common['Authorization'] = 'Bearer ' + window.keycloak.token;
             });
 
-            app.constant('SERVER_URL', '/customers');
+            app.constant('SERVER_URL', '/products');
 
-            app.controller("customerManagementController", function ($scope, $http, SERVER_URL) {
-                $scope.customers = [];
-                $scope.form = { id: -1, firstName: "", lastName: "" };
+            app.controller("productManagementController", function ($scope, $http, SERVER_URL) {
+                $scope.products = [];
+                $scope.form = { id: -1, name: "", price: 0 };
 
                 // Load initial data
                 _refreshPageData();
 
                 $scope.update = function () {
                     const data = {
-                        firstName: $scope.form.firstName,
-                        lastName: $scope.form.lastName
+                        name: $scope.form.name,
+                        price: $scope.form.price
                     };
                     if ($scope.form.id !== -1) {
                         data.id = $scope.form.id;
@@ -55,22 +55,22 @@
                     }).then(_success, _error);
                 };
 
-                $scope.remove = function (customer) {
+                $scope.remove = function (product) {
                     $http({
                         method: 'DELETE',
-                        url: SERVER_URL + "/" + customer.id
+                        url: SERVER_URL + "/" + product.id
                     }).then(_success, _error);
                 };
 
-                $scope.edit = function (customer) {
-                    $scope.form.firstName = customer.firstName;
-                    $scope.form.lastName = customer.lastName;
-                    $scope.form.id = customer.id;
+                $scope.edit = function (product) {
+                    $scope.form.name = product.name;
+                    $scope.form.price = product.price;
+                    $scope.form.id = product.id;
                 };
 
                 function _refreshPageData() {
                     $http.get(SERVER_URL).then(
-                        response => $scope.customers = response.data,
+                        response => $scope.products = response.data,
                         error => console.log(error.statusText)
                     );
                 }
@@ -85,13 +85,13 @@
                 }
 
                 function _clearForm() {
-                    $scope.form = { id: -1, firstName: "", lastName: "" };
+                    $scope.form = { id: -1, name: "", price: 0 };
                 }
             });
 
             // Bootstrap Angular manually
             angular.element(document).ready(() => {
-                angular.bootstrap(document.body, ["customerManagement"]);
+                angular.bootstrap(document.body, ["productManagement"]);
             });
 
             // Token refresh every 30 seconds
@@ -107,42 +107,41 @@
     </script>
 </head>
 <body>
-<div class="divTable blueTable" ng-controller="customerManagementController">
+<div class="divTable blueTable" ng-controller="productManagementController">
     <h1>Quarkus CRUD Example</h1>
     <button onclick="window.keycloak.login()">Login</button>
     <button onclick="window.keycloak.logout()">Logout</button>
-    <br>
-    <a ng-href="/product.html" class="myButton">Products</a>
-    <br>
-    <h2>Enter Customer:</h2>
+
+    <h2>Enter Product:</h2>
     <form ng-submit="update()">
         <div class="divTableRow">
-            <div class="divTableCell">First Name:</div>
-            <div class="divTableCell"><input type="text" placeholder="First Name" ng-model="form.firstName" size="60"/></div>
+            <div class="divTableCell">Product Name:</div>
+            <div class="divTableCell"><input type="text" placeholder="Name" ng-model="form.name" size="60"/></div>
         </div>
         <div class="divTableRow">
-            <div class="divTableCell">Last Name:</div>
-            <div class="divTableCell"><input type="text" placeholder="Last Name" ng-model="form.lastName" size="60"/></div>
+            <div class="divTableCell">Product Price:</div>
+            <div class="divTableCell"><input type="text" placeholder="Price" ng-model="form.price"/></div>
         </div>
         <input type="submit" value="Save"/>
     </form>
 
     <div class="divTable blueTable">
         <div class="divTableHeading">
-            <div class="divTableHead">Customer First Name</div>
-            <div class="divTableHead">Customer Last Name</div>
+            <div class="divTableHead">Name</div>
+            <div class="divTableHead">Price</div>
             <div class="divTableHead">Action</div>
         </div>
-        <div class="divTableRow" ng-repeat="customer in customers">
-            <div class="divTableCell">{{ customer.firstName }}</div>
-            <div class="divTableCell">{{ customer.lastName }}</div>
+        <div class="divTableRow" ng-repeat="product in products">
+            <div class="divTableCell">{{ product.name }}</div>
+            <div class="divTableCell">{{ product.price }}</div>
             <div class="divTableCell">
-                <a ng-href="/order.html?customerId={{ customer.id }}&customerName={{ customer.firstName }}&customerSurname={{ customer.lastName }}" class="myButton">Orders</a>
-                <a ng-click="edit(customer)" class="myButton">Edit</a>
-                <a ng-click="remove(customer)" class="myButton">Remove</a>
+                 <a ng-click="edit(product)" class="myButton">Edit</a>
+                <a ng-click="remove(product)" class="myButton">Remove</a>
             </div>
         </div>
     </div>
+    <br/>
+    <input type="button" class="myButton" onclick="location.href='/'" value="Home" />
 </div>
 </body>
 </html>
