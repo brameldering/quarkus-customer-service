@@ -13,7 +13,6 @@ import org.eclipse.microprofile.metrics.annotation.Gauge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -34,11 +33,11 @@ public class OrderDetailRepository {
         return OrderDetail.listAll();
     }
 
-    private void possibleFailure() {
-        if (new Random().nextFloat() < 0.5f) {
-            throw new RuntimeException("Resource failure.");
-        }
-    }
+//    private void possibleFailure() {
+//        if (new Random().nextFloat() < 0.5f) {
+//            throw new RuntimeException("Resource failure.");
+//        }
+//    }
 
     public OrderDetail findOrderById(Long id) {
         OrderDetail orderDetail = OrderDetail.findById(id);
@@ -69,7 +68,7 @@ public class OrderDetailRepository {
     @Bulkhead(value = 5, waitingTaskQueue = 10)
     @Transactional(Transactional.TxType.NOT_SUPPORTED)
     public Future writeSomeLogging(String item) {
-        LOG.info("New Customer order at: "+new java.util.Date());
+        LOG.info("New Customer order at: {}", new java.util.Date());
         LOG.info("Item: {}", item);
         return CompletableFuture.completedFuture("ok");
     }

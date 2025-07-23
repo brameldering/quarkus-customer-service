@@ -1,4 +1,4 @@
-package com.packt.quarkus;
+package com.packt.quarkus.keycloaktestresource;
 
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;

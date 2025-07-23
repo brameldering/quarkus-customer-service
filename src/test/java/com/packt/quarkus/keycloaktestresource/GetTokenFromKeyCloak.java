@@ -1,6 +1,5 @@
-package com.packt.quarkus;
+package com.packt.quarkus.keycloaktestresource;
 
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import jakarta.enterprise.context.ApplicationScoped;

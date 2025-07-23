@@ -1,8 +1,9 @@
-package com.packt.quarkus;
+package com.packt.quarkus.customer;
 
+import com.packt.quarkus.keycloaktestresource.GetTokenFromKeyCloak;
+import com.packt.quarkus.keycloaktestresource.KeycloakTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -122,7 +123,7 @@ class CustomerEndpointTest {
                 .body("lastName", is("Duck"));
 
         // 5. Test GET All after Update: Verify all customers, including the updated one and those from import.sql
-        LOG.info("Test get all customera.");
+        LOG.info("Test get all customers.");
         given()
                 .auth()
                 .oauth2(adminToken)
@@ -144,7 +145,7 @@ class CustomerEndpointTest {
                 .statusCode(204); // Expecting 204 No Content for a successful DELETE
 
         // Verify the customer is no longer present after deletion
-        LOG.info("Test customer is no longeer present after delete.");
+        LOG.info("Test customer is no longer present after delete.");
         given()
                 .auth()
                 .oauth2(adminToken)

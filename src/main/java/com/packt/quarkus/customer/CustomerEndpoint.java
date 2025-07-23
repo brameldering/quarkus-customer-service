@@ -58,98 +58,97 @@ public class CustomerEndpoint {
     @RolesAllowed({"user", "admin"})
     @Counted(description = "Customer list count", absolute = true)
     @Timed(name = "timerCheck", description = "How much time it takes to load the Customer list", unit = MetricUnits.MILLISECONDS)
-    @Operation(operationId = "getAllCustomers", description = "Getting All customers") // Changed operationId
+    @Operation(operationId = "getAllCustomers", description = "Getting All customers")
     @APIResponse(responseCode = "200", description = "Successful response.")
     public List<Customer> getAll() {
         LOG.info("Received request to get all customers.");
         // Log currently logged in user information using securityContext from Quarkus
-        LOG.info("Connected with User: "+securityContext.getPrincipal().getName());
+        LOG.info("Connected with User: {}", securityContext.getPrincipal().getName());
 //        Iterator<String> roles = securityContext.getRoles().iterator();
 //        while (roles.hasNext()) {
 //            LOG.info("Role: "+roles.next());
 //        }
         // Log JWT info
         LOG.info("========== JWT info ========");
-        LOG.info("Username: "+currentUsername);
-        LOG.info("JWT To String: "+jwt.toString());
+        LOG.info("Username: {}", currentUsername);
+        LOG.info("JWT To String: {}", jwt.toString());
         LOG.info("============================");
 
         List<Customer> customers = repository.findAll();
-        LOG.debug("Found " + customers.size() + " customers.");
+        LOG.debug("Found {} customers.", customers.size());
         return customers;
     }
 
-    // New method to get a single customer by ID
     @GET
     @RolesAllowed({"user", "admin"})
     @Path("/{id}") // Defines the path parameter for the ID
-    @Operation(operationId = "getCustomerById", description = "Get a customer by id") // Changed operationId
+    @Operation(operationId = "getCustomerById", description = "Get a customer by id")
     @APIResponse(responseCode = "200", description = "Successful response.")
     @APIResponse(responseCode = "404", description = "Customer not found.")
     public Response getById(@Parameter(description = "The id of the customer to get.", required = true) @PathParam("id") Long id) {
-        LOG.info("Received request to get customer by ID: " + id);
-        Customer customer = repository.findCustomerById(id); // Assuming this method exists in your repository
+        LOG.info("Received request to get customer by ID: {}", id);
+        Customer customer = repository.findCustomerById(id);
         if (customer != null) {
-            LOG.debug("Found customer with ID: " + id);
+            LOG.debug("Found customer with ID: {}", id);
             return Response.ok(customer).build(); // Return 200 OK with the customer object
         } else {
-            LOG.warn("Customer with ID: " + id + " not found.");
+            LOG.warn("Customer with ID: {} not found.", id);
             return Response.status(Response.Status.NOT_FOUND).build(); // Return 404 Not Found
         }
     }
 
     @POST
     @RolesAllowed("admin")
-    @Operation(operationId = "createCustomer", description = "Create a new customer") // Changed operationId
+    @Operation(operationId = "createCustomer", description = "Create a new customer")
     @APIResponse(responseCode = "201", description = "Successfully created" )
     @Transactional // Ensure this method runs within a transaction
     public Response create (@Parameter(description = "The new customer.", required = true) Customer customer) {
-        LOG.info("Received request to create customer: " + customer); // Be careful logging sensitive data
+        LOG.info("Received request to create customer: {}", customer);
         try {
             repository.createCustomer(customer);
-            LOG.info("Customer created successfully. ID: " + customer.getId());
+            LOG.info("Customer created successfully. ID: {}", customer.getId());
             // Return the created customer object in the response body
             // This is crucial for the test to extract the ID
             return Response.created(URI.create("/customers/" + customer.getId()))
                     .entity(customer) // Return the customer object
                     .build();
         } catch (Exception e) {
-            LOG.error("Error creating customer: " + customer, e);
+            LOG.error("Error creating customer: {}", customer, e);
             return Response.status(500).entity("Error creating customer").build();
         }
     }
 
     @PUT
     @RolesAllowed("admin")
-    @Operation(operationId = "updateCustomer", description = "Update an existing customer") // Changed operationId
+    @Operation(operationId = "updateCustomer", description = "Update an existing customer")
     @APIResponse(responseCode = "200", description = "Successfully updated" )
-    @Transactional // Ensure this method runs within a transaction
+    @Transactional
     public Response update(@Parameter(description = "The customer to update.", required = true) Customer customer) {
-        LOG.info("Received request to update customer: " + customer.getId());
+        LOG.info("Received request to update customer: {}", customer.getId());
         try {
             repository.updateCustomer(customer);
-            LOG.info("Customer updated successfully: " + customer.getId());
+            LOG.info("Customer updated successfully: {}", customer.getId());
             return Response.status(204).build();
         } catch (Exception e) {
-            LOG.error("Error updating customer: " + customer.getId(), e);
+            LOG.error("Error updating customer: {}", customer.getId(), e);
             return Response.status(500).entity("Error updating customer").build();
         }
     }
 
     @DELETE
     @RolesAllowed("admin")
-    @Path("/{id}") // Changed to accept id as a path parameter
-    @Operation(operationId = "deleteCustomer", description = "Delete a customer by ID") // Changed operationId
+    @Path("/{id}") // Accept id as a path parameter
+    @Operation(operationId = "deleteCustomer", description = "Delete a customer by ID")
     @APIResponse(responseCode = "204", description = "Successfully deleted" )
-    @Transactional // Ensure this method runs within a transaction
+    @Transactional
     public Response delete(@Parameter(description = "The id of the customer to delete.", required = true) @PathParam("id") Long id) { // Changed to @PathParam
-        LOG.info("Received request to delete customer with ID: " + id);
+        LOG.info("Received request to delete customer with ID: {}", id);
         try {
             repository.deleteCustomer(id);
-            LOG.info("Customer deleted successfully with ID: " + id);
+            LOG.info("Customer deleted successfully with ID: {}", id);
             return Response.status(204).build();
         } catch (Exception e) {
-            LOG.error("Error deleting customer with ID: " + id, e);
+            LOG.error("Error deleting customer with ID: {}", id, e);
             return Response.status(500).entity("Error deleting customer").build();
         }
     }
