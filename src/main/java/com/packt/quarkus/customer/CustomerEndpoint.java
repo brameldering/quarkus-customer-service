@@ -10,7 +10,6 @@ import jakarta.ws.rs.core.Response;
 import jakarta.transaction.Transactional; // Import for @Transactional
 
 import java.net.URI;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
