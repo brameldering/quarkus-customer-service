@@ -94,3 +94,4 @@ Thumbs.db
 /.quarkus/cli/plugins/
 # TLS Certificates
 .certs/
+.pem
